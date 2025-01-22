@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .search.routes import searchRouter
+from .middleware import registerMiddleware
 
 app = FastAPI()
 
@@ -12,5 +13,7 @@ app = FastAPI(
 )
 
 # registerAllErrors(app)
+
+registerMiddleware(app)
 
 app.include_router(searchRouter, prefix="/api/{version}/search", tags=["search"])
