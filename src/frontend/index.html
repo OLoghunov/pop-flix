@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop Flix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #search-container {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: white;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .movie-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .movie-description {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Movie Search</h1>
+    </header>
+
+    <div id="search-container">
+        <input type="text" id="movie-input" placeholder="Enter movie name...">
+        <button id="search-button">Search</button>
+    </div>
+
+    <ul id="movie-list"></ul>
+
+    <script>
+        document.getElementById('search-button').addEventListener('click', async () => {
+            const movieName = document.getElementById('movie-input').value.trim();
+            const movieList = document.getElementById('movie-list');
+            movieList.innerHTML = '';
+
+            if (!movieName) {
+                alert('Please enter a movie name');
+                return;
+            }
+
+            try {
+                let response = await fetch(`http://127.0.0.1:8000/api/0.1/search/${encodeURIComponent(movieName)}`);
+                
+                if (response.status === 307) {
+                    const redirectUrl = response.headers.get('Location');
+                    console.log(`Redirecting to: ${redirectUrl}`);
+                    response = await fetch(redirectUrl);
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch movies');
+                }
+            
+                const movies = await response.json();
+                if (movies.length === 0) {
+                    movieList.innerHTML = '<li>No movies found</li>';
+                    return;
+                }
+            
+                movies.forEach(movie => {
+                    const li = document.createElement('li');
+            
+                    const title = document.createElement('div');
+                    title.className = 'movie-title';
+                    title.textContent = `${movie.title || movie.altTitle} (${movie.year})`;
+            
+                    const description = document.createElement('div');
+                    description.className = 'movie-description';
+                    description.textContent = movie.description || 'No description available';
+            
+                    li.appendChild(title);
+                    li.appendChild(description);
+                    movieList.appendChild(li);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred while fetching movies');
+            }
+        });
+    </script>
+</body>
+</html>
