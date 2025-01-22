@@ -10,7 +10,7 @@ from src.db.main import getSession
 searchRouter = APIRouter()
 searchService = SearchService()
 
-@searchRouter.get("/", response_model=List[SearchFilmModel])
+@searchRouter.get("/{filmName}", response_model=List[SearchFilmModel])
 async def getFilmByName(
     filmName: str,
     session: AsyncSession = Depends(getSession)
