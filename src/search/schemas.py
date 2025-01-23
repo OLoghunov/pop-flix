@@ -1,14 +1,17 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 
+
 class RatingModel(BaseModel):
     kp: Optional[float] = None
     imdb: Optional[float] = None
     filmCritics: Optional[float] = None
     awaitReward: Optional[float] = None
 
+
 class GenreModel(BaseModel):
     name: str
+
 
 class SearchFilmModel(BaseModel):
     id: int
@@ -20,3 +23,30 @@ class SearchFilmModel(BaseModel):
     genre: List[GenreModel] = []
     description: Optional[str] = None
     poster_url: Optional[str] = None
+
+
+class RatingModel(BaseModel):
+    kp: Optional[float] = Field(None)
+    imdb: Optional[float] = Field(None)
+    filmCritics: Optional[float] = Field(None)
+    await_: Optional[float] = Field(None, alias="await")
+
+
+class GenreModel(BaseModel):
+    name: str = Field(...)
+
+
+class PosterModel(BaseModel):
+    url: Optional[str] = Field(None)
+    previewUrl: Optional[str] = Field(None)
+
+
+class FilmDetailModel(BaseModel):
+    id: int
+    title: Optional[str] = Field(None, alias="name")
+    title_en: Optional[str] = Field(None, alias="alternativeName")
+    year: Optional[int] = Field(None)
+    rating: Optional[RatingModel] = Field(None)
+    genre: List[GenreModel] = Field(alias="genres")
+    description: Optional[str] = Field(None)
+    poster: Optional[PosterModel] = Field(None)

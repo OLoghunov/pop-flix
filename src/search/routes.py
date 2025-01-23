@@ -1,19 +1,23 @@
 from typing import List
 
-from fastapi import APIRouter, status, Depends
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter
 
-from .schemas import SearchFilmModel
+from .schemas import SearchFilmModel, FilmDetailModel
 from .service import SearchService
-from src.db.main import getSession
 
 searchRouter = APIRouter()
 searchService = SearchService()
 
+
 @searchRouter.get("/{filmName}", response_model=List[SearchFilmModel])
-async def getFilmByName(
-    filmName: str,
-    session: AsyncSession = Depends(getSession)
-):
-    films = await searchService.findFilms(filmName, session)
+async def getFilmByName(filmName: str):
+    films = await searchService.findFilms(filmName)
+
     return films
+
+
+@searchRouter.get("/film/{filmId}")
+async def getFilmById(filmId: str):
+    film: FilmDetailModel = await searchService.getFilmById(filmId)
+
+    return film
