@@ -3,14 +3,14 @@ from typing import List, Optional, Dict, Any
 
 
 class RatingModel(BaseModel):
-    kp: Optional[float] = None
-    imdb: Optional[float] = None
-    filmCritics: Optional[float] = None
-    awaitReward: Optional[float] = None
+    kp: Optional[float] = Field(None)
+    imdb: Optional[float] = Field(None)
+    filmCritics: Optional[float] = Field(None)
+    await_: Optional[float] = Field(None, alias="await")
 
 
 class GenreModel(BaseModel):
-    name: str
+    name: str = Field(...)
 
 
 class SearchFilmModel(BaseModel):
@@ -23,17 +23,6 @@ class SearchFilmModel(BaseModel):
     genre: List[GenreModel] = []
     description: Optional[str] = None
     poster_url: Optional[str] = None
-
-
-class RatingModel(BaseModel):
-    kp: Optional[float] = Field(None)
-    imdb: Optional[float] = Field(None)
-    filmCritics: Optional[float] = Field(None)
-    await_: Optional[float] = Field(None, alias="await")
-
-
-class GenreModel(BaseModel):
-    name: str = Field(...)
 
 
 class PosterModel(BaseModel):
