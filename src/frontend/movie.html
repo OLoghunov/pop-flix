@@ -38,7 +38,7 @@
         <img id="movie-poster" class="poster" src="" alt="Movie Poster">
         <h1 id="movie-title"></h1>
         <p id="movie-year"></p>
-        <p id="movie-genres" class="genres"></p> <!-- Добавим здесь вывод жанров -->
+        <p id="movie-genres" class="genres"></p>
         <p id="movie-description"></p>
         <p id="movie-rating"></p>
     </div>
@@ -61,12 +61,10 @@
 
                 const movie = await response.json();
 
-                // Загружаем данные фильма
                 document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/400x400?text=No+Poster';
                 document.getElementById('movie-title').textContent = `${movie.name || movie.alternativeName} (${movie.year})`;
                 document.getElementById('movie-year').textContent = `Год: ${movie.year}`;
                 
-                // Обрабатываем жанры
                 const genres = movie.genres.map(g => g.name).join(', ');
                 document.getElementById('movie-genres').textContent = `Жанры: ${genres}`;
 
