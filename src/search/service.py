@@ -1,4 +1,5 @@
 import httpx
+from typing import List
 
 from src.config import Config
 from .schemas import SearchFilmModel, RatingModel, GenreModel, FilmDetailModel
@@ -17,9 +18,11 @@ class SearchService:
                 f"Error fetching data from Kinopoisk API: {response.status_code}"
             )
 
-        filmsData = response.json()["docs"]
+        filmsData: List[dict] = response.json()["docs"]
         films = []
 
+        filmsData.sort(key=lambda x: x["rating"]["kp"], reverse=True)
+        
         for film in filmsData:
             rating_data = film.get("rating", {})
             genre_data = film.get("genres", [])
