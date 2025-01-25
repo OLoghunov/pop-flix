@@ -2,7 +2,13 @@ import httpx
 from typing import List
 
 from src.config import Config
-from .schemas import SearchFilmModel, RatingModel, GenreModel, FilmDetailModel
+from .schemas import (
+    SearchFilmModel,
+    RatingModel,
+    GenreModel,
+    FilmDetailModel,
+    PosterModel,
+)
 
 
 class SearchService:
@@ -22,10 +28,11 @@ class SearchService:
         films = []
 
         filmsData.sort(key=lambda x: x["rating"]["kp"], reverse=True)
-        
+
         for film in filmsData:
-            rating_data = film.get("rating", {})
-            genre_data = film.get("genres", [])
+            rating_data: dict = film.get("rating", {})
+            genre_data: List[dict] = film.get("genres", [])
+            poster_data: dict = film.get("poster", {})
 
             rating = (
                 RatingModel(
@@ -39,6 +46,15 @@ class SearchService:
             )
 
             genres = [GenreModel(name=genre.get("name")) for genre in genre_data]
+            
+            poster = (
+                PosterModel(
+                    url=poster_data.get("url"),
+                    previewUrl=poster_data.get("previewUrl")  
+                )
+                if poster_data
+                else None
+            )
 
             film_model = SearchFilmModel(
                 id=film.get("id"),
@@ -49,7 +65,7 @@ class SearchService:
                 rating=rating,
                 genre=genres,
                 description=film.get("description", ""),
-                poster_url=film.get("posterUrl", ""),
+                poster=poster
             )
 
             films.append(film_model)

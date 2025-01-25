@@ -13,6 +13,11 @@ class GenreModel(BaseModel):
     name: str = Field(...)
 
 
+class PosterModel(BaseModel):
+    url: Optional[str] = Field(None)
+    previewUrl: Optional[str] = Field(None)
+    
+
 class SearchFilmModel(BaseModel):
     id: int
     title: Optional[str] = None
@@ -22,12 +27,7 @@ class SearchFilmModel(BaseModel):
     rating: Optional[RatingModel] = None
     genre: List[GenreModel] = []
     description: Optional[str] = None
-    poster_url: Optional[str] = None
-
-
-class PosterModel(BaseModel):
-    url: Optional[str] = Field(None)
-    previewUrl: Optional[str] = Field(None)
+    poster: Optional[PosterModel] = None
 
 
 class FilmDetailModel(BaseModel):
