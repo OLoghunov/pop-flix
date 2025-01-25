@@ -11,13 +11,13 @@ searchService = SearchService()
 
 @searchRouter.get("/{filmName}", response_model=List[SearchFilmModel])
 async def getFilmByName(filmName: str):
-    films = await searchService.findFilms(filmName)
+    films = await searchService.getFilms(filmName)
 
     return films
 
 
-@searchRouter.get("/film/{filmId}")
+@searchRouter.get("/film/{filmId}", response_model=FilmDetailModel)
 async def getFilmById(filmId: str):
-    film: FilmDetailModel = await searchService.getFilmById(filmId)
+    film = await searchService.getFilmById(filmId)
 
     return film

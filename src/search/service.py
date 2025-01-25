@@ -5,7 +5,7 @@ from .schemas import SearchFilmModel, RatingModel, GenreModel, FilmDetailModel
 
 
 class SearchService:
-    async def findFilms(self, filmName: str):
+    async def getFilms(self, filmName: str):
         url = f"https://api.kinopoisk.dev/v1.4/movie/search?query={filmName}"
         headers = {"X-API-KEY": Config.KINOPOISK_API_KEY}
 
