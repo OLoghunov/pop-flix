@@ -30,45 +30,7 @@ class SearchService:
         filmsData.sort(key=lambda x: x["rating"]["kp"], reverse=True)
 
         for film in filmsData:
-            rating_data: dict = film.get("rating", {})
-            genre_data: List[dict] = film.get("genres", [])
-            poster_data: dict = film.get("poster", {})
-
-            rating = (
-                RatingModel(
-                    kp=rating_data.get("kp"),
-                    imdb=rating_data.get("imdb"),
-                    filmCritics=rating_data.get("filmCritics"),
-                    awaitReward=rating_data.get("await"),
-                )
-                if rating_data
-                else None
-            )
-
-            genres = [GenreModel(name=genre.get("name")) for genre in genre_data]
-            
-            poster = (
-                PosterModel(
-                    url=poster_data.get("url"),
-                    previewUrl=poster_data.get("previewUrl")  
-                )
-                if poster_data
-                else None
-            )
-
-            film_model = SearchFilmModel(
-                id=film.get("id"),
-                title=film.get("name"),
-                titleRu=film.get("nameRu"),
-                altTitle=film.get("alternativeName"),
-                year=film.get("year"),
-                rating=rating,
-                genre=genres,
-                description=film.get("description", ""),
-                poster=poster
-            )
-
-            films.append(film_model)
+            films.append(SearchFilmModel.model_validate(film))
 
         return films
 
