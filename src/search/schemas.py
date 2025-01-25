@@ -20,20 +20,20 @@ class PosterModel(BaseModel):
 
 class SearchFilmModel(BaseModel):
     id: int
-    title: Optional[str] = None
-    titleRu: Optional[str] = None
-    altTitle: Optional[str] = None
-    year: Optional[int] = None
-    rating: Optional[RatingModel] = None
-    genre: List[GenreModel] = []
-    description: Optional[str] = None
-    poster: Optional[PosterModel] = None
+    title: Optional[str] = Field(None, alias="alternativeName")
+    titleRu: Optional[str] = Field(None, alias="name")
+    altTitle: Optional[str] = Field(None)
+    year: Optional[int] = Field(None)
+    rating: Optional[RatingModel] = Field(None)
+    genre: List[GenreModel] = Field(None)
+    description: Optional[str] = Field(None)
+    poster: Optional[PosterModel] = Field(None)
 
 
 class FilmDetailModel(BaseModel):
     id: int
-    title: Optional[str] = Field(None, alias="name")
-    title_en: Optional[str] = Field(None, alias="alternativeName")
+    title: Optional[str] = Field(None, alias="alternativeName")
+    titleRu: Optional[str] = Field(None, alias="name") 
     year: Optional[int] = Field(None)
     rating: Optional[RatingModel] = Field(None)
     genre: List[GenreModel] = Field(alias="genres")
