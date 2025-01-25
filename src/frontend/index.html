@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pop Flix</title>
+    <title>Movie Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,6 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             height: 100vh;
             background-color: #f0f0f0;
         }
@@ -20,15 +21,35 @@
             text-align: center;
         }
         #search-container {
-            position: sticky;
+            position: fixed;
             top: 0;
-            background-color: #f0f0f0;
             width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
+            background-color: #f0f0f0;
+            padding: 10px 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            position: relative;
+        }
+        #search-container .center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        #service-name {
+            position: absolute;
+            left: 30px; /* Сдвигаем название на 10px от левого края */
+            font-weight: bold;
+            font-size: 28px;
+            color: #333;
+        }
+        .center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         input[type="text"] {
             padding: 10px;
@@ -36,7 +57,6 @@
             width: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-right: 10px;
         }
         button {
             padding: 10px 20px;
@@ -51,24 +71,37 @@
             background-color: #0056b3;
         }
         #movie-list {
-            flex: 1;
-            width: 100%;
-            max-width: 600px;
+            margin-top: 10px;
+            width: 90%;
+            max-width: 800px;
             overflow-y: auto;
-            padding: 0 20px;
-            box-sizing: border-box;
+            max-height: calc(100vh - 100px);
+            padding: 0;
         }
         ul {
             list-style-type: none;
             padding: 0;
-            margin: 0;
         }
         li {
+            display: flex;
+            align-items: center;
             background-color: white;
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .poster {
+            width: 50px;
+            height: 75px;
+            margin-right: 15px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .movie-details {
+            display: flex;
+            flex-direction: column;
         }
         .movie-title {
             font-weight: bold;
@@ -81,13 +114,13 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Movie Search</h1>
-    </header>
 
     <div id="search-container">
-        <input type="text" id="movie-input" placeholder="Enter movie name...">
-        <button id="search-button">Search</button>
+        <div id="service-name">Pop Flix</div>
+        <div class="center">
+            <input type="text" id="movie-input" placeholder="Enter movie name...">
+            <button id="search-button">Search</button>
+        </div>
     </div>
 
     <ul id="movie-list"></ul>
@@ -121,20 +154,33 @@
                     movieList.innerHTML = '<li>No movies found</li>';
                     return;
                 }
-            
+
+                const defaultPoster = 'https://placehold.co/400x400?text=No+Poster';
+
                 movies.forEach(movie => {
                     const li = document.createElement('li');
-            
+
+                    const poster = document.createElement('img');
+                    poster.className = 'poster';
+                    poster.src = movie.poster?.url || defaultPoster;
+                    poster.alt = `${movie.title || movie.altTitle} poster`;
+
+                    const details = document.createElement('div');
+                    details.className = 'movie-details';
+
                     const title = document.createElement('div');
                     title.className = 'movie-title';
                     title.textContent = `${movie.title || movie.altTitle} (${movie.year})`;
-            
+
                     const description = document.createElement('div');
                     description.className = 'movie-description';
                     description.textContent = movie.description || 'No description available';
-            
-                    li.appendChild(title);
-                    li.appendChild(description);
+
+                    details.appendChild(title);
+                    details.appendChild(description);
+
+                    li.appendChild(poster);
+                    li.appendChild(details);
                     movieList.appendChild(li);
                 });
             } catch (error) {
