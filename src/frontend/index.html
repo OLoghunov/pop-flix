@@ -90,6 +90,11 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        li:hover {
+            background-color: rgb(226, 226, 226);
         }
         .poster {
             width: 50px;
@@ -141,7 +146,6 @@
                 
                 if (response.status === 307) {
                     const redirectUrl = response.headers.get('Location');
-                    console.log(`Redirecting to: ${redirectUrl}`);
                     response = await fetch(redirectUrl);
                 }
                 
@@ -159,18 +163,20 @@
 
                 movies.forEach(movie => {
                     const li = document.createElement('li');
+                    li.className = 'movie-item';
+                    li.dataset.id = movie.id;
 
                     const poster = document.createElement('img');
                     poster.className = 'poster';
                     poster.src = movie.poster?.url || defaultPoster;
-                    poster.alt = `${movie.title || movie.altTitle} poster`;
+                    poster.alt = `${movie.name || movie.alternativeName} poster`;
 
                     const details = document.createElement('div');
                     details.className = 'movie-details';
 
                     const title = document.createElement('div');
                     title.className = 'movie-title';
-                    title.textContent = `${movie.title || movie.altTitle} (${movie.year})`;
+                    title.textContent = `${movie.name || movie.alternativeName} (${movie.year})`;
 
                     const description = document.createElement('div');
                     description.className = 'movie-description';
@@ -182,6 +188,10 @@
                     li.appendChild(poster);
                     li.appendChild(details);
                     movieList.appendChild(li);
+
+                    li.addEventListener('click', () => {
+                        window.location.href = `movie.html?id=${movie.id}`;
+                    });
                 });
             } catch (error) {
                 console.error(error);
