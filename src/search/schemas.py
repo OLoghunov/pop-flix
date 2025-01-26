@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 
 class RatingModel(BaseModel):
@@ -16,6 +16,20 @@ class GenreModel(BaseModel):
 class PosterModel(BaseModel):
     url: Optional[str] = Field(None)
     previewUrl: Optional[str] = Field(None)
+   
+ 
+class CountryModel(BaseModel):
+    name: str = Field(...)   
+    
+    
+class PersonModel(BaseModel):
+    id: int = Field(...)
+    photo: Optional[str] = Field(None)
+    name: str = Field(...)
+    enName: Optional[str] = Field(None)
+    description: Optional[str] = Field(None)
+    profession: str = Field(...)
+    enProfession: str = Field(...)
     
 
 class SearchFilmModel(BaseModel):
@@ -37,5 +51,7 @@ class FilmDetailModel(BaseModel):
     year: Optional[int] = Field(None)
     rating: Optional[RatingModel] = Field(None)
     genre: List[GenreModel] = Field(alias="genres")
+    countries: List[CountryModel] = Field(None)
+    persons: List[PersonModel] = Field(None)
     description: Optional[str] = Field(None)
     poster: Optional[PosterModel] = Field(None)
