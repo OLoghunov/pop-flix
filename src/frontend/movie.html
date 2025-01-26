@@ -8,42 +8,166 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 0;
+            background-color: #181818;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background-color: #242424;
+            padding: 10px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        .navbar a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 28px;
+            font-weight: bold;
+            margin-left: 20px;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .navbar .buttons {
+            display: flex;
+            gap: 10px;
+            margin-right: 100px;
+        }
+        .navbar .button {
+            background-color: #ff4500;
+            color: #fff;
+            padding: 8px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .navbar .button:hover {
+            background-color: #ff6347;
         }
         .movie-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
+            max-width: 1200px;
+            margin: 100px auto 20px;
+            background-color: #242424;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
         }
         .poster {
-            width: 200px;
+            width: 300px;
             height: auto;
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
-        h1 {
-            font-size: 24px;
+        .details {
+            flex: 2;
+            padding: 0 20px;
+        }
+        .details h1 {
+            font-size: 28px;
+            margin: 0 0 10px;
+        }
+        .details p {
+            margin: 5px 0;
+            color: #a0a0a0;
+        }
+        .genres, .countries {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .description {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #c0c0c0;
+        }
+        .rating {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .actors-container {
+            flex: 1;
+            max-width: 300px;
+        }
+        .actors-container h2 {
+            font-size: 20px;
             margin-bottom: 10px;
         }
-        p {
-            margin: 5px 0;
+        .actor {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .actor img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .actor-info {
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <a href="#" id="home-link">Pop-Flix</a>
+        <div class="buttons">
+            <button class="button" id="register-button">Регистрация</button>
+            <button class="button" id="login-button">Вход</button>
+        </div>
+    </div>
+
     <div class="movie-container">
-        <img id="movie-poster" class="poster" src="" alt="Movie Poster">
-        <h1 id="movie-title"></h1>
-        <p id="movie-year"></p>
-        <p id="movie-genres" class="genres"></p>
-        <p id="movie-description"></p>
-        <p id="movie-rating"></p>
+        <div class="header">
+            <div class="poster-section">
+                <img id="movie-poster" class="poster" src="" alt="Movie Poster">
+            </div>
+
+            <div class="details">
+                <h1 id="movie-title"></h1>
+                <p id="movie-year"></p>
+                <p id="movie-genres" class="genres"></p>
+                <p id="movie-countries" class="countries"></p>
+                <p id="movie-director" class="director"></p>
+                <p class="rating" id="movie-rating"></p>
+                <p id="movie-description" class="description"></p>
+            </div>
+
+            <div class="actors-container">
+                <h2>Актеры</h2>
+                <div id="actors-list"></div>
+            </div>
+        </div>
     </div>
 
     <script>
+        document.getElementById('home-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Переход на главную страницу ещё не реализован');
+        });
+
+        document.getElementById('register-button').addEventListener('click', () => {
+            alert('Функция регистрации ещё не реализована');
+        });
+
+        document.getElementById('login-button').addEventListener('click', () => {
+            alert('Функция авторизации ещё не реализована');
+        });
+
         async function fetchMovieDetails() {
             const params = new URLSearchParams(window.location.search);
             const movieId = params.get('id');
@@ -61,18 +185,60 @@
 
                 const movie = await response.json();
 
-                document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/400x400?text=No+Poster';
-                document.getElementById('movie-title').textContent = `${movie.name || movie.alternativeName} (${movie.year})`;
-                document.getElementById('movie-year').textContent = `Год: ${movie.year}`;
-                
-                const genres = movie.genres.map(g => g.name).join(', ');
-                document.getElementById('movie-genres').textContent = `Жанры: ${genres}`;
+                // Main details
+                document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster';
+                document.getElementById('movie-title').textContent = movie.name || movie.alternativeName || 'Без названия';
+                document.getElementById('movie-year').textContent = `Год выпуска: ${movie.year || 'Не указан'}`;
+                document.getElementById('movie-description').textContent = movie.description || 'Описание отсутствует';
 
-                document.getElementById('movie-description').textContent = `Описание: ${movie.description || 'Описание недоступно'}`;
-                document.getElementById('movie-rating').textContent = `Рейтинги - KP: ${movie.rating?.kp || 'N/A'}, IMDb: ${movie.rating?.imdb || 'N/A'}`;
+                // Genres
+                const genres = movie.genres.map(g => g.name).join(', ');
+                document.getElementById('movie-genres').textContent = `Жанры: ${genres || 'Не указаны'}`;
+
+                // Countries
+                const countries = movie.countries.map(c => c.name).join(', ');
+                document.getElementById('movie-countries').textContent = `Страны: ${countries || 'Не указаны'}`;
+
+                // Director
+                const directors = movie.persons.filter(person => person.enProfession === 'director');
+                if (directors.length > 0) {
+                    const directorNames = directors.map(director => director.name || 'Неизвестный').join(', ');
+                    document.getElementById('movie-director').textContent = `Режиссер: ${directorNames}`;
+                } else {
+                    document.getElementById('movie-director').textContent = 'Режиссер: Информация отсутствует';
+                }
+
+                // Ratings
+                document.getElementById('movie-rating').textContent =
+                    `Рейтинг: КиноПоиск ${movie.rating?.kp || 'N/A'}, IMDb ${movie.rating?.imdb || 'N/A'}`;
+
+                // Actors
+                const actorsList = document.getElementById('actors-list');
+                if (movie.persons && movie.persons.length > 0) {
+                    const actors = movie.persons
+                        .filter(person => person.enProfession === 'actor')
+                        .slice(0, 10);
+
+                    actors.forEach(actor => {
+                        const actorDiv = document.createElement('div');
+                        actorDiv.classList.add('actor');
+
+                        actorDiv.innerHTML = `
+                            <img src="${actor.photo || 'https://placehold.co/60x60?text=No+Photo'}" alt="${actor.name}">
+                            <div class="actor-info">
+                                <strong>${actor.name || 'Неизвестно'}</strong><br>
+                                ${actor.description || ''}
+                            </div>
+                        `;
+
+                        actorsList.appendChild(actorDiv);
+                    });
+                } else {
+                    actorsList.textContent = 'Информация об актерах отсутствует';
+                }
             } catch (error) {
                 console.error(error);
-                alert('An error occurred while fetching movie details');
+                alert('Произошла ошибка при загрузке информации о фильме');
             }
         }
 
