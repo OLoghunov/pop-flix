@@ -85,9 +85,6 @@ class RoleChecker:
 
     def __call__(self, currentUser: User = Depends(getCurrentUser)):
         
-        if not currentUser.isVerified:
-            raise AccountNotVerified()
-        
         if currentUser.role in self.allowedRoles:
             return True
         raise InsufficientPermission()
