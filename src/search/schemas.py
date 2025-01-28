@@ -25,7 +25,7 @@ class CountryModel(BaseModel):
 class PersonModel(BaseModel):
     id: int = Field(...)
     photo: Optional[str] = Field(None)
-    name: str = Field(...)
+    name: Optional[str] = Field(None)
     enName: Optional[str] = Field(None)
     description: Optional[str] = Field(None)
     profession: str = Field(...)
