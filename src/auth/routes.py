@@ -87,10 +87,10 @@ async def createUserAccount(
 
     await mail.send_message(message)
 
-    return {
-        "message": "Account created. Check email to verify your account",
-        "user": newUser,
-    }
+    return JSONResponse(
+        content={"message": "Account created. Check email to verify your account"}, 
+        status_code=status.HTTP_200_OK
+    )
 
 
 @authRouter.post("/login")
@@ -121,7 +121,8 @@ async def loginUsers(
                     "access_token": accessToken,
                     "refresh_token": refreshToken,
                     "user": {"email": user.email, "uid": str(user.uid)},
-                }
+                },
+                status_code=status.HTTP_200_OK
             )
 
     raise InvalidCredentials()
@@ -139,7 +140,7 @@ async def getNewAccessToken(tokenDetails: dict = Depends(RefreshTokenBearer())):
     raise InvalidToken()
 
 
-@authRouter.get("/me", response_model=UserFilmsModel)
+@authRouter.get("/me")
 async def getCurrentUser(user=Depends(getCurrentUser), _: bool = Depends(roleChecker)):
     return user
 
