@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import getSession
 from src.db.models import User
+from src.mail import mail, createMessage
 from .schemas import (
     UserCreateModel,
     UserModel,
@@ -69,7 +70,22 @@ async def createUserAccount(
 
     newUser = await userService.createUser(userData, session)
 
+    token = createUrlSafeToken({"email": email})
+
+    link = f"http://{Config.DOMAIN}/api/0.1/auth/verify/{token}"
+
+    htmlMessage = f"""
+    <p>Please click this <a href="{link}"> link</a> to verify your email</p>
+    """
+
+    message = createMessage(
+        recipients=[email], subject="Verify Your Email", body=htmlMessage
+    )
+
+    await mail.send_message(message)
+
     return {
+        "message": "Account created. Check email to verify your account",
         "user": newUser,
     }
 
