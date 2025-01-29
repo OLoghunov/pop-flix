@@ -88,8 +88,8 @@ async def createUserAccount(
     await mail.send_message(message)
 
     return JSONResponse(
-        content={"message": "Account created. Check email to verify your account"}, 
-        status_code=status.HTTP_200_OK
+        content={"message": "Account created. Check email to verify your account"},
+        status_code=status.HTTP_200_OK,
     )
 
 
@@ -122,7 +122,7 @@ async def loginUsers(
                     "refresh_token": refreshToken,
                     "user": {"email": user.email, "uid": str(user.uid)},
                 },
-                status_code=status.HTTP_200_OK
+                status_code=status.HTTP_200_OK,
             )
 
     raise InvalidCredentials()
@@ -141,8 +141,13 @@ async def getNewAccessToken(tokenDetails: dict = Depends(RefreshTokenBearer())):
 
 
 @authRouter.get("/me")
-async def getCurrentUser(user=Depends(getCurrentUser), _: bool = Depends(roleChecker)):
-    return user
+async def getCurrentUser(
+    user: User = Depends(getCurrentUser),
+    _: bool = Depends(roleChecker),
+    session: AsyncSession = Depends(getSession),
+):
+    userWithFilms = await userService.getUserWithFilms(user.uid, session)
+    return userWithFilms
 
 
 @authRouter.get("/logout")
@@ -188,7 +193,7 @@ async def resetAccountPassword(
 ):
     newPassword = passwords.newPassword
     confirmPassword = passwords.confirmNewPassword
-    
+
     if newPassword != confirmPassword:
         raise HTTPException(
             detail="Passwords do not match", status_code=status.HTTP_400_BAD_REQUEST

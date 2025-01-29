@@ -1,8 +1,12 @@
-from src.db.models import User
+import uuid
+
+from src.db.models import User, UserFilmLink
+from src.search.schemas import FilmShortModel, UserResponseModel
 from .schemas import UserCreateModel
 from .utils import generatePasswordHash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 
 
 class UserService:
@@ -37,3 +41,27 @@ class UserService:
         await session.commit()
 
         return user
+
+    async def getUserWithFilms(self, userUid: uuid.UUID, session: AsyncSession):
+        result = await session.exec(
+            select(User)
+            .where(User.uid == userUid)
+            .options(selectinload(User.film_links).joinedload(UserFilmLink.film))
+        )
+        user_with_links = result.first()
+
+        if not user_with_links:
+            raise Exception("User not found")
+
+        films = [
+            FilmShortModel(
+                id=link.film.apiId,
+                title=link.film.title,
+                year=link.film.year,
+                poster=link.film.poster,
+                status=link.status,
+            )
+            for link in user_with_links.film_links
+        ]
+
+        return UserResponseModel(**user_with_links.model_dump(), films=films)
