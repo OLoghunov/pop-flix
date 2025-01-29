@@ -1,16 +1,41 @@
-from typing import List, Optional
-
-from sqlmodel import SQLModel, Field, Column, Relationship
-import sqlalchemy.dialects.postgresql as pg
-from datetime import datetime, date
 import uuid
+from datetime import datetime
+from typing import List, Optional
+from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, ForeignKey
+import sqlalchemy.dialects.postgresql as pg
+
+
+class UserFilmLink(SQLModel, table=True):
+    __tablename__ = "user_film_association"
+
+    user_uid: uuid.UUID = Field(
+        sa_column=Column(pg.UUID, ForeignKey("users.uid", ondelete="CASCADE"), primary_key=True)
+    )
+    film_uid: uuid.UUID = Field(
+        sa_column=Column(pg.UUID, ForeignKey("films.uid", ondelete="CASCADE"), primary_key=True)
+    )
+
+
+class Film(SQLModel, table=True):
+    __tablename__ = "films"
+
+    uid: uuid.UUID = Field(
+        sa_column=Column(pg.UUID, primary_key=True, default=uuid.uuid4)
+    )
+    title: str = Field(nullable=False)
+    year: Optional[int] = None
+    poster: Optional[str] = None
+    users: List["User"] = Relationship(
+        back_populates="films", link_model=UserFilmLink
+    )
 
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
 
     uid: uuid.UUID = Field(
-        sa_column=Column(pg.UUID, nullable=False, primary_key=True, default=uuid.uuid4)
+        sa_column=Column(pg.UUID, primary_key=True, default=uuid.uuid4)
     )
     username: str
     email: str
@@ -24,23 +49,5 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     films: List["Film"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="users", link_model=UserFilmLink
     )
-
-    def __repr__(self):
-        return f"<User {self.username}>"
-    
-    
-class Film(SQLModel, table=True):
-    __tablename__ = "films"
-    
-    uid: uuid.UUID = Field(
-        sa_column=Column(pg.UUID, nullable=False, primary_key=True, default=uuid.uuid4)
-    )
-    userUid: Optional[uuid.UUID] = Field(default=None, foreign_key="users.uid")
-    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
-    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
-    user: Optional[User] = Relationship(back_populates="films")
-
-    def __repr__(self):
-        return f"<Book {self.title}>"
