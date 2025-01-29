@@ -101,9 +101,8 @@
                 const result = await response.json();
                 alert(result.message);
         
-                // Обработка параметра redirect
                 const params = new URLSearchParams(window.location.search);
-                const redirectUrl = params.get('redirect') || '/'; // По умолчанию корень сайта
+                const redirectUrl = params.get('redirect') || '/';
                 window.location.href = redirectUrl;
             } catch (error) {
                 console.error(error);
