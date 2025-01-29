@@ -9,42 +9,32 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #181818;
+            color: #e0e0e0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             height: 100vh;
-            background-color: #f0f0f0;
-        }
-        header {
-            margin-bottom: 20px;
-            text-align: center;
         }
         #search-container {
             position: fixed;
             top: 0;
             width: 100%;
-            background-color: #f0f0f0;
+            background-color: #242424;
             padding: 10px 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            position: relative;
-        }
-        #search-container .center {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0 auto;
         }
         #service-name {
             position: absolute;
-            left: 30px; /* Сдвигаем название на 10px от левого края */
+            left: 30px; 
             font-weight: bold;
             font-size: 28px;
-            color: #333;
+            color: #e0e0e0;
         }
         .center {
             display: flex;
@@ -55,27 +45,30 @@
             padding: 10px;
             font-size: 16px;
             width: 300px;
-            border: 1px solid #ccc;
+            border: 1px solid #555;
             border-radius: 5px;
+            background-color: #333;
+            color: #e0e0e0;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #007BFF;
+            background-color: #ff4500;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #ff6347;
         }
         #movie-list {
-            margin-top: 10px;
+            margin-top: 80px;
             width: 90%;
             max-width: 800px;
             overflow-y: auto;
-            max-height: calc(100vh - 100px);
+            max-height: calc(100vh - 120px);
             padding: 0;
         }
         ul {
@@ -85,16 +78,17 @@
         li {
             display: flex;
             align-items: center;
-            background-color: white;
+            background-color: #242424;
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         li:hover {
-            background-color: rgb(226, 226, 226);
+            transform: scale(1.02);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
         }
         .poster {
             width: 50px;
@@ -102,7 +96,7 @@
             margin-right: 15px;
             object-fit: cover;
             border-radius: 5px;
-            border: 1px solid #ccc;
+            border: 1px solid #555;
         }
         .movie-details {
             display: flex;
@@ -111,10 +105,11 @@
         .movie-title {
             font-weight: bold;
             margin-bottom: 5px;
+            color: #e0e0e0;
         }
         .movie-description {
             font-size: 14px;
-            color: #555;
+            color: #a0a0a0;
         }
     </style>
 </head>
@@ -143,16 +138,16 @@
 
             try {
                 let response = await fetch(`http://127.0.0.1:8000/api/0.1/search/${encodeURIComponent(movieName)}`);
-                
+
                 if (response.status === 307) {
                     const redirectUrl = response.headers.get('Location');
                     response = await fetch(redirectUrl);
                 }
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch movies');
                 }
-            
+
                 const movies = await response.json();
                 if (movies.length === 0) {
                     movieList.innerHTML = '<li>No movies found</li>';
