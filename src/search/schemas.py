@@ -1,5 +1,10 @@
+from datetime import datetime
+import uuid
+
 from pydantic import BaseModel, Field
 from typing import List, Optional
+
+from src.db.models import FilmStatus
 
 
 class RatingModel(BaseModel):
@@ -55,3 +60,24 @@ class FilmDetailModel(BaseModel):
     persons: List[PersonModel] = Field(None)
     description: Optional[str] = Field(None)
     poster: Optional[PosterModel] = Field(None)
+
+
+class FilmShortModel(BaseModel):
+    id: int
+    title: str = Field(...)
+    year: Optional[int] = Field(default=None)
+    poster: Optional[str] = Field(None)
+    status: FilmStatus
+    
+    
+class UserResponseModel(BaseModel):
+    uid: uuid.UUID
+    username: str
+    email: str
+    firstName: str
+    lastName: str
+    role: str
+    isVerified: bool
+    created_at: datetime
+    updated_at: datetime
+    films: List[FilmShortModel] 
