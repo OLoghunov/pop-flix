@@ -165,26 +165,26 @@
         }
         
         #add-to-list-button {
-            width: 40px;  /* Ширина кнопки */
-            height: 40px; /* Высота кнопки */
-            background-color: #555; /* Темно-серый фон */
-            border: none; /* Убираем рамку */
-            border-radius: 10px; /* Скругленные углы */
-            display: flex; /* Используем флекс для выравнивания содержимого */
-            justify-content: center; /* Выравнивание по центру по горизонтали */
-            align-items: center; /* Выравнивание по центру по вертикали */
-            cursor: pointer; /* Курсор в виде указателя */
-            font-size: 20px; /* Размер иконки */
-            color: #32CD32; /* Зеленый цвет для иконки */
+            width: 40px;
+            height: 40px;
+            background-color: #555;
+            border: none;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: #32CD32;
             transition: background-color 0.3s ease;
         }
         
         #add-to-list-button:hover {
-            background-color: #666; /* Светлее при наведении */
+            background-color: #666;
         }
         
         .eye-icon {
-            font-size: 20px; /* Размер иконки глаза */
+            font-size: 20px;
         }
     </style>
 </head>
@@ -202,7 +202,7 @@
             <div class="poster-section">
                 <img id="movie-poster" class="poster" src="" alt="Movie Poster">
                 <button id="add-to-list-button" class="button">
-                    <span class="eye-icon">👁️</span> <!-- Иконка глаза внутри кнопки -->
+                    <span class="eye-icon">👁️</span>
                 </button>
             </div>
     
@@ -255,28 +255,23 @@
             }
         
             try {
-                // Получаем данные о фильме
                 const response = await fetch(`http://127.0.0.1:8000/api/0.1/search/film/${movieId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch movie details');
                 }
                 const movie = await response.json();
         
-                // Основные данные о фильме
                 document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster';
                 document.getElementById('movie-title').textContent = movie.name || movie.alternativeName || 'Без названия';
                 document.getElementById('movie-year').textContent = `Год выпуска: ${movie.year || 'Не указан'}`;
                 document.getElementById('movie-description').textContent = movie.description || 'Описание отсутствует';
         
-                // Жанры
                 const genres = movie.genres.map(g => g.name).join(', ');
                 document.getElementById('movie-genres').textContent = `Жанры: ${genres || 'Не указаны'}`;
         
-                // Страны
                 const countries = movie.countries.map(c => c.name).join(', ');
                 document.getElementById('movie-countries').textContent = `Страны: ${countries || 'Не указаны'}`;
         
-                // Режиссеры
                 const directors = movie.persons.filter(person => person.enProfession === 'director');
                 if (directors.length > 0) {
                     const directorNames = directors.map(director => director.name || 'Неизвестный').join(', ');
@@ -285,11 +280,9 @@
                     document.getElementById('movie-director').textContent = 'Режиссер: Информация отсутствует';
                 }
         
-                // Рейтинги
                 document.getElementById('movie-rating').textContent =
                     `Рейтинг: КиноПоиск ${movie.rating?.kp || 'N/A'}, IMDb ${movie.rating?.imdb || 'N/A'}`;
         
-                // Актеры
                 const actorsList = document.getElementById('actors-list');
                 if (movie.persons && movie.persons.length > 0) {
                     const actors = movie.persons
@@ -314,7 +307,6 @@
                     actorsList.textContent = 'Информация об актерах отсутствует';
                 }
         
-                // Получаем информацию о пользователе
                 const userResponse = await fetch('http://127.0.0.1:8000/api/0.1/auth/me', {
                     method: 'GET',
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -323,23 +315,21 @@
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
         
-                    // Проверяем, есть ли фильм в списке пользователя
                     const filmStatus = userData.films.find(film => film.id === movie.id)?.status;
                     const addButton = document.getElementById('add-to-list-button');
         
-                    // Обновляем кнопку в зависимости от статуса фильма
                     if (!filmStatus) {
                         
-                        addButton.style.backgroundColor = '#999999'; // Серая кнопка (по умолчанию)
+                        addButton.style.backgroundColor = '#999999';
                         addButton.onclick = async function() {
                             await addToList(movieId);
                         };
                     } else if (filmStatus === 'planned') {
                         
-                        addButton.style.backgroundColor = '#FFD700'; // Желтая кнопка (запланирован)
+                        addButton.style.backgroundColor = '#FFD700';
                     } else if (filmStatus === 'watched') {
                         
-                        addButton.style.backgroundColor = '#32CD32'; // Зеленая кнопка (просмотрен)
+                        addButton.style.backgroundColor = '#32CD32';
                     }
                 } else {
                     console.error('Failed to fetch user data');
@@ -359,7 +349,6 @@
             }
         
             try {
-                // Получаем данные о фильме для добавления в тело запроса
                 const response = await fetch(`http://127.0.0.1:8000/api/0.1/search/film/${movieId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch movie details for adding to list');
@@ -367,16 +356,14 @@
         
                 const movie = await response.json();
         
-                // Подготавливаем данные для добавления
                 const movieData = {
                     id: movie.id,
                     title: movie.name || movie.alternativeName || 'Без названия',
                     year: movie.year || 'Не указан',
                     poster: movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster',
-                    status: 'watched'  // Это может быть статусом 'watched', 'planned' или другим
+                    status: 'watched'
                 };
         
-                // Отправляем запрос на добавление фильма в список
                 const addResponse = await fetch('http://127.0.0.1:8000/api/0.1/search/film', {
                     method: 'POST',
                     headers: {
@@ -392,7 +379,7 @@
         
                 const result = await addResponse.json();
                 alert('Фильм добавлен в ваш список!');
-                fetchMovieDetails(); // Обновить статус кнопки
+                fetchMovieDetails();
             } catch (error) {
                 console.error('Error adding film to list:', error);
                 alert('Ошибка при добавлении фильма в список');
