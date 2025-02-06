@@ -58,7 +58,7 @@ class SearchService:
 
         film_data = response.json()
         film = FilmDetailModel.model_validate(film_data)
-        return film
+        return film.model_dump(by_alias=True)
 
     async def addFilmForUser(
         self, filmData: FilmShortModel, currentUser: User, session: AsyncSession
