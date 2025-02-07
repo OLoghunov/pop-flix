@@ -353,7 +353,7 @@
                     `Рейтинг: КиноПоиск ${movie.rating?.kp || 'N/A'}, IMDb ${movie.rating?.imdb || 'N/A'}`;
     
                 const actorsList = document.getElementById('actors-list');
-                actorsList.innerHTML = ''; // Очищаем перед добавлением
+                actorsList.innerHTML = '';
                 const actors = movie.persons.filter(p => p.enProfession === 'actor').slice(0, 10);
                 if (actors.length > 0) {
                     actors.forEach(actor => {
@@ -374,11 +374,10 @@
                     actorsList.textContent = 'Информация об актерах отсутствует';
                 }
     
-                // Проверяем авторизацию
                 const accessToken = localStorage.getItem('access_token');
                 const addButton = document.getElementById('add-to-list-button');
                 if (accessToken) {
-                    addButton.style.display = 'flex'; // Показываем кнопку
+                    addButton.style.display = 'flex';
     
                     const userResponse = await fetch('http://127.0.0.1:8000/api/0.1/auth/me', {
                         method: 'GET',
@@ -411,7 +410,6 @@
             }
         }
     
-        // Загружаем данные о фильме при загрузке страницы
         fetchMovieDetails();
     </script>
     
