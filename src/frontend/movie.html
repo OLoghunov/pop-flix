@@ -201,9 +201,9 @@
         <div class="header">
             <div class="poster-section">
                 <img id="movie-poster" class="poster" src="" alt="Movie Poster">
-                <button id="add-to-list-button" class="button">
+                <button id="add-to-list-button" class="button" style="display: none;">
                     <span class="eye-icon">👁️</span>
-                </button>
+                </button>                
             </div>
     
             <div class="details">
@@ -224,123 +224,6 @@
     </div>
     <script src="auth.js"></script>
     <script>
-        document.getElementById('home-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'index.html';
-        });
-
-        document.getElementById('register-button').addEventListener('click', () => {
-            const redirectUrl = window.location.href;
-            window.location.href = `register.html?redirect=${encodeURIComponent(redirectUrl)}`;
-        });
-        
-        document.getElementById('login-button').addEventListener('click', () => {
-            const redirectUrl = window.location.href;
-            window.location.href = `login.html?redirect=${encodeURIComponent(redirectUrl)}`;
-        });
-
-        async function fetchMovieDetails() {
-            const params = new URLSearchParams(window.location.search);
-            const movieId = params.get('id');
-        
-            if (!movieId) {
-                alert('Movie ID is missing');
-                return;
-            }
-        
-            const accessToken = localStorage.getItem('access_token');
-            if (!accessToken) {
-                alert('Please log in to see movie details');
-                return;
-            }
-        
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/api/0.1/search/film/${movieId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch movie details');
-                }
-                const movie = await response.json();
-        
-                document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster';
-                document.getElementById('movie-title').textContent = movie.name || movie.alternativeName || 'Без названия';
-                document.getElementById('movie-year').textContent = `Год выпуска: ${movie.year || 'Не указан'}`;
-                document.getElementById('movie-description').textContent = movie.description || 'Описание отсутствует';
-        
-                const genres = movie.genres.map(g => g.name).join(', ');
-                document.getElementById('movie-genres').textContent = `Жанры: ${genres || 'Не указаны'}`;
-        
-                const countries = movie.countries.map(c => c.name).join(', ');
-                document.getElementById('movie-countries').textContent = `Страны: ${countries || 'Не указаны'}`;
-        
-                const directors = movie.persons.filter(person => person.enProfession === 'director');
-                if (directors.length > 0) {
-                    const directorNames = directors.map(director => director.name || 'Неизвестный').join(', ');
-                    document.getElementById('movie-director').textContent = `Режиссер: ${directorNames}`;
-                } else {
-                    document.getElementById('movie-director').textContent = 'Режиссер: Информация отсутствует';
-                }
-        
-                document.getElementById('movie-rating').textContent =
-                    `Рейтинг: КиноПоиск ${movie.rating?.kp || 'N/A'}, IMDb ${movie.rating?.imdb || 'N/A'}`;
-        
-                const actorsList = document.getElementById('actors-list');
-                if (movie.persons && movie.persons.length > 0) {
-                    const actors = movie.persons
-                        .filter(person => person.enProfession === 'actor')
-                        .slice(0, 10);
-        
-                    actors.forEach(actor => {
-                        const actorDiv = document.createElement('div');
-                        actorDiv.classList.add('actor');
-        
-                        actorDiv.innerHTML = `
-                            <img src="${actor.photo || 'https://placehold.co/60x60?text=No+Photo'}" alt="${actor.name}">
-                            <div class="actor-info">
-                                <strong>${actor.name || 'Неизвестно'}</strong><br>
-                                ${actor.description || ''}
-                            </div>
-                        `;
-        
-                        actorsList.appendChild(actorDiv);
-                    });
-                } else {
-                    actorsList.textContent = 'Информация об актерах отсутствует';
-                }
-        
-                const userResponse = await fetch('http://127.0.0.1:8000/api/0.1/auth/me', {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                });
-        
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-        
-                    const filmStatus = userData.films.find(film => film.id === movie.id)?.status;
-                    const addButton = document.getElementById('add-to-list-button');
-        
-                    if (!filmStatus) {
-                        
-                        addButton.style.backgroundColor = '#999999';
-                        addButton.onclick = async function() {
-                            await addToList(movieId);
-                        };
-                    } else if (filmStatus === 'planned') {
-                        
-                        addButton.style.backgroundColor = '#FFD700';
-                    } else if (filmStatus === 'watched') {
-                        
-                        addButton.style.backgroundColor = '#32CD32';
-                    }
-                } else {
-                    console.error('Failed to fetch user data');
-                }
-        
-            } catch (error) {
-                console.error(error);
-                alert('Произошла ошибка при загрузке информации о фильме');
-            }
-        }
-        
         async function addToList(movieId) {
             const accessToken = localStorage.getItem('access_token');
             if (!accessToken) {
@@ -378,16 +261,159 @@
                 }
         
                 const result = await addResponse.json();
-                alert('Фильм добавлен в ваш список!');
                 fetchMovieDetails();
             } catch (error) {
                 console.error('Error adding film to list:', error);
                 alert('Ошибка при добавлении фильма в список');
             }
         }
+    
+        async function removeFromList(movieId) {
+            const accessToken = localStorage.getItem('access_token');
+            if (!accessToken) {
+                alert('Вы должны быть авторизованы, чтобы удалить фильм из списка.');
+                return;
+            }
+    
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/0.1/search/film/${movieId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении фильма');
+                }
+    
+                await fetchMovieDetails();
+            } catch (error) {
+                console.error(error);
+                alert('Не удалось удалить фильм.');
+            }
+        }
+    
+        async function handleListButtonClick(movieId, currentStatus) {
+            if (currentStatus) {
+                await removeFromList(movieId);
+            } else {
+                await addToList(movieId);
+            }
+        }
+    
+        document.getElementById('home-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('register-button').addEventListener('click', () => {
+            const redirectUrl = window.location.href;
+            window.location.href = `register.html?redirect=${encodeURIComponent(redirectUrl)}`;
+        });
         
+        document.getElementById('login-button').addEventListener('click', () => {
+            const redirectUrl = window.location.href;
+            window.location.href = `login.html?redirect=${encodeURIComponent(redirectUrl)}`;
+        });
+
+        async function fetchMovieDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const movieId = params.get('id');
+    
+            if (!movieId) {
+                alert('Movie ID is missing');
+                return;
+            }
+    
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/0.1/search/film/${movieId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch movie details');
+                }
+                const movie = await response.json();
+    
+                document.getElementById('movie-poster').src = movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster';
+                document.getElementById('movie-title').textContent = movie.name || movie.alternativeName || 'Без названия';
+                document.getElementById('movie-year').textContent = `Год выпуска: ${movie.year || 'Не указан'}`;
+                document.getElementById('movie-description').textContent = movie.description || 'Описание отсутствует';
+    
+                const genres = movie.genres.map(g => g.name).join(', ');
+                document.getElementById('movie-genres').textContent = `Жанры: ${genres || 'Не указаны'}`;
+    
+                const countries = movie.countries.map(c => c.name).join(', ');
+                document.getElementById('movie-countries').textContent = `Страны: ${countries || 'Не указаны'}`;
+    
+                const directors = movie.persons.filter(person => person.enProfession === 'director');
+                document.getElementById('movie-director').textContent = directors.length > 0 
+                    ? `Режиссер: ${directors.map(d => d.name || 'Неизвестный').join(', ')}`
+                    : 'Режиссер: Информация отсутствует';
+    
+                document.getElementById('movie-rating').textContent =
+                    `Рейтинг: КиноПоиск ${movie.rating?.kp || 'N/A'}, IMDb ${movie.rating?.imdb || 'N/A'}`;
+    
+                const actorsList = document.getElementById('actors-list');
+                actorsList.innerHTML = ''; // Очищаем перед добавлением
+                const actors = movie.persons.filter(p => p.enProfession === 'actor').slice(0, 10);
+                if (actors.length > 0) {
+                    actors.forEach(actor => {
+                        const actorDiv = document.createElement('div');
+                        actorDiv.classList.add('actor');
+    
+                        actorDiv.innerHTML = `
+                            <img src="${actor.photo || 'https://placehold.co/60x60?text=No+Photo'}" alt="${actor.name}">
+                            <div class="actor-info">
+                                <strong>${actor.name || 'Неизвестно'}</strong><br>
+                                ${actor.description || ''}
+                            </div>
+                        `;
+    
+                        actorsList.appendChild(actorDiv);
+                    });
+                } else {
+                    actorsList.textContent = 'Информация об актерах отсутствует';
+                }
+    
+                // Проверяем авторизацию
+                const accessToken = localStorage.getItem('access_token');
+                const addButton = document.getElementById('add-to-list-button');
+                if (accessToken) {
+                    addButton.style.display = 'flex'; // Показываем кнопку
+    
+                    const userResponse = await fetch('http://127.0.0.1:8000/api/0.1/auth/me', {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    });
+    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        const userFilm = userData.films.find(film => film.id === movie.id);
+                        const filmStatus = userFilm?.status || null;
+    
+                        if (!filmStatus) {
+                            addButton.style.backgroundColor = '#999999';
+                            addButton.onclick = () => handleListButtonClick(movieId, null);
+                        } else if (filmStatus === 'planned') {
+                            addButton.style.backgroundColor = '#FFD700';
+                            addButton.onclick = () => handleListButtonClick(movieId, 'planned');
+                        } else if (filmStatus === 'watched') {
+                            addButton.style.backgroundColor = '#32CD32';
+                            addButton.onclick = () => handleListButtonClick(movieId, 'watched');
+                        }
+                    } else {
+                        console.error('Failed to fetch user data');
+                    }
+                }
+    
+            } catch (error) {
+                console.error(error);
+                alert('Произошла ошибка при загрузке информации о фильме');
+            }
+        }
+    
+        // Загружаем данные о фильме при загрузке страницы
         fetchMovieDetails();
-        
     </script>
+    
 </body>
 </html>
