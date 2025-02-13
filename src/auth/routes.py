@@ -8,10 +8,7 @@ from src.db.models import User
 from src.mail import mail, createMessage
 from .schemas import (
     UserCreateModel,
-    UserModel,
     UserLoginModel,
-    UserFilmsModel,
-    EmailModel,
     PasswordResetConfirmModel,
     PasswordResetRequestModel,
 )
@@ -28,6 +25,7 @@ from .dependencies import (
     AccessTokenBearer,
     getCurrentUser,
     RoleChecker,
+    verifyEmail,
 )
 from src.db.redis import addJtiToBlocklist
 from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken, UserNotFound
@@ -36,6 +34,7 @@ from src.config import Config
 authRouter = APIRouter()
 userService = UserService()
 roleChecker = RoleChecker(["admin", "user"])
+
 
 REFRESH_TOKEN_EXPIRY = 2
 
@@ -162,8 +161,13 @@ async def revokeToken(tokenDetails: dict = Depends(AccessTokenBearer())):
 
 
 @authRouter.post("/password-reset-request")
-async def passwordResetRequest(emailData: PasswordResetRequestModel):
-    email = emailData.email
+async def passwordResetRequest(
+    emailData: PasswordResetRequestModel,
+    session: AsyncSession = Depends(getSession)  
+):
+    await verifyEmail(emailData, session)
+    
+    email = emailData.email    
 
     token = createUrlSafeToken({"email": email})
 

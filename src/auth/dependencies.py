@@ -5,6 +5,7 @@ from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from fastapi.exceptions import HTTPException
 from .utils import decodeToken
+from .schemas import PasswordResetRequestModel
 from src.db.redis import tokenInBlocklist
 from src.db.main import getSession
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -84,7 +85,17 @@ class RoleChecker:
         self.allowedRoles = allowedRoles
 
     def __call__(self, currentUser: User = Depends(getCurrentUser)):
-        
+
         if currentUser.role in self.allowedRoles:
             return True
         raise InsufficientPermission()
+
+
+async def verifyEmail(
+    emailData: PasswordResetRequestModel, 
+    session: AsyncSession,
+):
+    user = await userService.getUserByEmail(emailData.email, session)
+    if user.isVerified:
+        return True
+    raise AccountNotVerified()
