@@ -18,6 +18,7 @@ from src.errors import (
     RefreshTokenRequired,
     InsufficientPermission,
     AccountNotVerified,
+    UserNotFound,
 )
 
 
@@ -92,10 +93,13 @@ class RoleChecker:
 
 
 async def verifyEmail(
-    emailData: PasswordResetRequestModel, 
+    emailData: PasswordResetRequestModel,
     session: AsyncSession,
 ):
     user = await userService.getUserByEmail(emailData.email, session)
-    if user.isVerified:
-        return True
-    raise AccountNotVerified()
+    if user is None:
+        raise UserNotFound()
+    if not user.isVerified:
+        raise AccountNotVerified()
+
+    return True
