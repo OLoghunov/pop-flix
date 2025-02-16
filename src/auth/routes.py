@@ -30,6 +30,7 @@ from .dependencies import (
 from src.db.redis import addJtiToBlocklist
 from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken, UserNotFound
 from src.config import Config
+from src.celery_tasks import send_email
 
 authRouter = APIRouter()
 userService = UserService()
@@ -70,21 +71,19 @@ async def createUserAccount(
     if userExists:
         raise UserAlreadyExists()
 
-    newUser = await userService.createUser(userData, session)
+    await userService.createUser(userData, session)
 
     token = createUrlSafeToken({"email": email})
 
     link = f"http://{Config.DOMAIN}/api/0.1/auth/verify/{token}"
 
+    emails = [email]
+    subject="Verify Your Email"
     htmlMessage = f"""
     <p>Please click this <a href="{link}"> link</a> to verify your email</p>
     """
 
-    message = createMessage(
-        recipients=[email], subject="Verify Your Email", body=htmlMessage
-    )
-
-    await mail.send_message(message)
+    send_email.delay(emails, subject, htmlMessage)
 
     return JSONResponse(
         content={"message": "Account created. Check email to verify your account"},
@@ -173,15 +172,13 @@ async def passwordResetRequest(
 
     link = f"http://{Config.DOMAIN}/api/0.1/auth/password-reset-confirm/{token}"
 
+    emails = [email]
+    subject="Reset Your Password"
     htmlMessage = f"""
     <p>Please click this <a href="{link}"> link</a> to reset your password</p>
     """
 
-    message = createMessage(
-        recipients=[email], subject="Reset Your Password", body=htmlMessage
-    )
-
-    await mail.send_message(message)
+    send_email.delay(emails, subject, htmlMessage)
 
     return JSONResponse(
         content={"message": "Check your email for instructions to reset your password"},
