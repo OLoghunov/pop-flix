@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str
     REDIS_URL: str = "redis://localhost:6379/0"
+    RABBITMQ_URL: str = "pyamqp://guest:guest@localhost//"
 
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
@@ -27,6 +28,6 @@ class Settings(BaseSettings):
     
 Config = Settings()
 
-broker_url = Config.REDIS_URL
+broker_url = Config.RABBITMQ_URL
 result_backend = Config.REDIS_URL
 broker_connection_retry_on_startup = True
