@@ -38,6 +38,7 @@ class Film(SQLModel, table=True):
         sa_column=Column(pg.UUID, primary_key=True, default=uuid.uuid4)
     )
     apiId: int = Field(default=None)
+    tmdbId: int = Field(default=None)
     title: str = Field(nullable=False)
     year: Optional[int] = None
     poster: Optional[str] = None
