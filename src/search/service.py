@@ -75,7 +75,8 @@ class SearchService:
                 title=filmData.title,
                 year=filmData.year,
                 poster=filmData.poster,
-                apiId=filmData.id
+                apiId=filmData.id,
+                tmdbId=filmData.tmdbId
             )
             session.add(film)
             await session.commit()
