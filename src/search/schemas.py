@@ -25,6 +25,12 @@ class PosterModel(BaseModel):
  
 class CountryModel(BaseModel):
     name: str = Field(...)   
+
+
+class ExternalIdModel(BaseModel):
+    imdb: Optional[str] = Field(None)
+    tmdb: Optional[int] = Field(None)
+    kpHD: Optional[str] = Field(None)
     
     
 class PersonModel(BaseModel):
@@ -60,6 +66,7 @@ class FilmDetailModel(BaseModel):
     persons: List[PersonModel] = Field(None)
     description: Optional[str] = Field(None)
     poster: Optional[PosterModel] = Field(None)
+    externalId: Optional[ExternalIdModel] = Field(None)
 
 
 class FilmShortModel(BaseModel):
@@ -68,6 +75,7 @@ class FilmShortModel(BaseModel):
     year: Optional[int] = Field(default=None)
     poster: Optional[str] = Field(None)
     status: FilmStatus
+    tmdbId: Optional[int] = Field(default=None)
     
     
 class UserResponseModel(BaseModel):
