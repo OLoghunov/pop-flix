@@ -10,9 +10,12 @@ from .service import SearchService
 from src.db.main import getSession
 from src.db.models import User, FilmStatus
 from src.auth.dependencies import getCurrentUser
+from src.auth.service import UserService
+
 
 searchRouter = APIRouter()
 searchService = SearchService()
+userService = UserService()
 
 
 @searchRouter.get("/{filmName}", response_model=List[SearchFilmModel])
@@ -73,3 +76,14 @@ async def getFilmById(filmId: str):
     film = await searchService.getFilmById(filmId)
 
     return JSONResponse(content=film)
+
+
+@searchRouter.get("/recommendations", response_model=List[FilmShortModel])
+async def getRecommendations(
+    user: User = Depends(getCurrentUser),
+    session: AsyncSession = Depends(getSession)
+):
+    user_with_films = await userService.getUserWithFilms(user.uid, session)
+    watched_films = [film.id for film in user_with_films.films if film.status == "watched"]
+
+    return await searchService.getRecommendations(watched_films)
