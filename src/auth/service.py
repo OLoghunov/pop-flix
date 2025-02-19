@@ -59,6 +59,7 @@ class UserService:
                 title=link.film.title,
                 year=link.film.year,
                 poster=link.film.poster,
+                tmdbId=link.film.tmdbId,
                 status=link.status,
             )
             for link in user_with_links.film_links
