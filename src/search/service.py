@@ -65,9 +65,9 @@ class SearchService:
     ):
         film_uid = uuid.uuid5(uuid.NAMESPACE_DNS, str(filmData.id))
         filmStatus = filmData.status
-        
+
         result = await session.exec(select(Film).where(Film.uid == film_uid))
-        
+
         film = result.first()
         if not film:
             film = Film(
@@ -76,19 +76,19 @@ class SearchService:
                 year=filmData.year,
                 poster=filmData.poster,
                 apiId=filmData.id,
-                tmdbId=filmData.tmdbId
+                tmdbId=filmData.tmdbId,
             )
             session.add(film)
             await session.commit()
             await session.refresh(film)
-            
+
         result = await session.exec(
             select(UserFilmLink).where(
                 UserFilmLink.user_uid == currentUser.uid,
                 UserFilmLink.film_uid == film.uid,
             )
         )
- 
+
         existing_link = result.first()
         if existing_link:
             if existing_link.status == filmStatus:
@@ -96,18 +96,18 @@ class SearchService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Фильм уже в списке {filmStatus.value}",
                 )
-                
+
             existing_link.status = filmStatus
             await session.commit()
-            
+
             return {"message": f"Фильм перемещен в список {filmStatus.value}"}
-        
+
         user_film_link = UserFilmLink(
             user_uid=currentUser.uid, film_uid=film.uid, status=filmStatus
         )
         session.add(user_film_link)
         await session.commit()
-        
+
         return {"message": f"Фильм добавлен в список {filmStatus.value}"}
 
     async def removeFilmForUser(
@@ -121,14 +121,46 @@ class SearchService:
             )
         )
         film_link = result.first()
-        
+
         if not film_link:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Фильм не найден в вашем списке",
             )
-        
+
         await session.delete(film_link)
         await session.commit()
-        
+
         return {"message": "Фильм удален из вашего списка"}
+
+    async def getRecommendations(self, movie_id: int):
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations?language=en-US&page=1"
+
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {Config.RECOMMENDATIONS_API_ACCESS_KEY}",
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+
+        if response.status_code != 200:
+            raise Exception(
+                f"Error fetching data from TMDB API: {response.status_code}"
+            )
+
+        recommended_films = response.json()
+
+        films = [
+            FilmShortModel(
+                id=-1,
+                title=film["title"],
+                year=film["release_date"][:4],
+                poster=film["poster_path"],
+                status="planned",
+                tmdbId=film["id"],
+            )
+            for film in recommended_films["results"]
+        ]
+
+        return films
