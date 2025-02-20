@@ -18,7 +18,7 @@ searchService = SearchService()
 userService = UserService()
 
 
-@searchRouter.get("/{filmName}", response_model=List[SearchFilmModel])
+@searchRouter.get("/getlist/{filmName}", response_model=List[SearchFilmModel])
 async def getFilmByName(filmName: str):
     films = await searchService.getFilms(filmName)
 
@@ -85,5 +85,13 @@ async def getRecommendations(
 ):
     user_with_films = await userService.getUserWithFilms(user.uid, session)
     watched_films = [film.id for film in user_with_films.films if film.status == "watched"]
+    
+    if not watched_films:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Can't find any recommendations",
+        )
+    
+    movie_id = watched_films[-1]
 
-    return await searchService.getRecommendations(watched_films)
+    return await searchService.getRecommendations(movie_id)
