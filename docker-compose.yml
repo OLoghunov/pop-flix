@@ -50,9 +50,12 @@ services:
     build: .
     container_name: celery_worker
     depends_on:
-      - rabbitmq
-      - redis
-      - backend
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+      backend:
+        condition: service_started
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/popflix
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
