@@ -7,11 +7,8 @@ services:
       - db
       - rabbitmq
       - redis
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/popflix
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      REDIS_URL: redis://redis:6379/0
+    env_file:
+      - .env.docker
     ports:
       - "8000:8000"
     command: ["sh", "-c", "alembic upgrade head && uvicorn src:app --host 0.0.0.0 --port 8000"]
@@ -20,10 +17,8 @@ services:
     image: postgres:15
     container_name: postgres_db
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: popflix
+    env_file:
+      - .env.docker
     ports:
       - "5432:5432"
     volumes:
@@ -33,12 +28,11 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq_broker
     restart: always
+    env_file:
+      - .env.docker
     ports:
-      - "5672:5672"   # Main port RabbitMQ
-      - "15672:15672" # Web-based management interface
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      - "5672:5672"
+      - "15672:15672"
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 5s
@@ -67,10 +61,8 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
-    environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/popflix
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    env_file:
+      - .env.docker
     command: ["celery", "-A", "src.celery_tasks.c_app", "worker", "-l", "info", "-P", "threads"]
 
 volumes:
