@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src /app/src
 
-COPY .env .env
+COPY .env.docker .env.docker
 
 COPY alembic.ini .
 
