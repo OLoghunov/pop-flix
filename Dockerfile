@@ -13,7 +13,3 @@ COPY .env .env
 COPY alembic.ini .
 
 COPY migrations migrations
-
-EXPOSE 8000
-
-ENV HOST=0.0.0.0
