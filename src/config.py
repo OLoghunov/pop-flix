@@ -6,8 +6,8 @@ class Settings(BaseSettings):
     RECOMMENDATIONS_API_ACCESS_KEY: str
     JWT_SECRET: str
     JWT_ALGORITHM: str
-    REDIS_URL: str = "redis://localhost:6379/0"
-    RABBITMQ_URL: str = "pyamqp://guest:guest@localhost//"
+    REDIS_URL: str
+    RABBITMQ_URL: str
 
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
