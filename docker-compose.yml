@@ -13,6 +13,16 @@ services:
       - "8000:8000"
     command: ["sh", "-c", "alembic upgrade head && uvicorn src:app --host 0.0.0.0 --port 8000"]
 
+  recommendation-service:
+    build: ../recommendation-service
+    container_name: recommendation_service
+    depends_on:
+    - backend
+    ports:
+      - "8001:8000"
+    networks:
+      - backend
+
   db:
     image: postgres:15
     container_name: postgres_db
@@ -67,3 +77,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  backend:
+    driver: bridge
