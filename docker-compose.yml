@@ -12,12 +12,11 @@ services:
     ports:
       - "8000:8000"
     command: ["sh", "-c", "alembic upgrade head && uvicorn src:app --host 0.0.0.0 --port 8000"]
+    networks:
+      - backend
 
   recommendation-service:
     build: ../recommendation-service
-    container_name: recommendation_service
-    depends_on:
-    - backend
     ports:
       - "8001:8000"
     networks:
@@ -33,6 +32,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -48,6 +49,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - backend
 
   redis:
     image: redis:7
@@ -60,6 +63,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - backend
 
   celery_worker:
     build: .
@@ -74,6 +79,8 @@ services:
     env_file:
       - .env.docker
     command: ["celery", "-A", "src.celery_tasks.c_app", "worker", "-l", "info", "-P", "threads"]
+    networks:
+      - backend
 
 volumes:
   postgres_data:
