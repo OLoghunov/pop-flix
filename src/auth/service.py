@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 from src.db.models import User, UserFilmLink
 from src.search.schemas import FilmShortModel, UserResponseModel
@@ -52,12 +53,13 @@ class UserService:
 
         if not user_with_links:
             raise Exception("User not found")
-
+        
         films = [
             FilmShortModel(
                 id=link.film.apiId,
                 title=link.film.title,
                 year=link.film.year,
+                genres=[{"name": genre.name} for genre in link.film.genres],
                 poster=link.film.poster,
                 tmdbId=link.film.tmdbId,
                 status=link.status,
