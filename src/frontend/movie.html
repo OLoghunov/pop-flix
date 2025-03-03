@@ -243,6 +243,7 @@
                     id: movie.id,
                     title: movie.name || movie.alternativeName || 'Без названия',
                     year: movie.year || 'Не указан',
+                    genres: movie.genres,
                     poster: movie.poster?.url || 'https://placehold.co/300x400?text=No+Poster',
                     tmdbId: movie.externalId.tmdb,
                     status: 'watched'
