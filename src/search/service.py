@@ -6,8 +6,9 @@ import uuid
 from fastapi import HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 
-from src.db.models import User, Film, UserFilmLink, FilmStatus
+from src.db.models import User, Film, UserFilmLink, Genre
 from src.config import Config
 from .schemas import (
     SearchFilmModel,
@@ -66,9 +67,11 @@ class SearchService:
         film_uid = uuid.uuid5(uuid.NAMESPACE_DNS, str(filmData.id))
         filmStatus = filmData.status
 
-        result = await session.exec(select(Film).where(Film.uid == film_uid))
-
+        result = await session.scalars(
+            select(Film).where(Film.uid == film_uid)
+        )
         film = result.first()
+
         if not film:
             film = Film(
                 uid=film_uid,
@@ -80,16 +83,34 @@ class SearchService:
             )
             session.add(film)
             await session.commit()
+
+            genres = []
+            for genre_data in filmData.genres:
+                genre_name = genre_data.name.strip().lower()
+                genre_result = await session.scalars(
+                    select(Genre).where(Genre.name == genre_name)
+                )
+                genre = genre_result.first()
+
+                if not genre:
+                    genre = Genre(name=genre_name)
+                    session.add(genre)
+                    await session.commit()
+
+                genres.append(genre)
+                
+            await session.run_sync(lambda _: film.genres.extend(genres))
+            await session.commit()
             await session.refresh(film)
 
-        result = await session.exec(
+        result = await session.scalars(
             select(UserFilmLink).where(
                 UserFilmLink.user_uid == currentUser.uid,
                 UserFilmLink.film_uid == film.uid,
             )
         )
-
         existing_link = result.first()
+
         if existing_link:
             if existing_link.status == filmStatus:
                 raise HTTPException(
