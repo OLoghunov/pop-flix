@@ -154,7 +154,7 @@ class SearchService:
 
         return {"message": "Фильм удален из вашего списка"}
 
-    async def getRecommendations(self, movie_id: int):
+    async def getRecommendationsFromTmdb(self, movie_id: int):
         url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations?language=en-US&page=1"
 
         headers = {
