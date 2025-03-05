@@ -83,15 +83,13 @@ async def getRecommendations(
     user: User = Depends(getCurrentUser),
     session: AsyncSession = Depends(getSession)
 ):
-    user_with_films = await userService.getUserWithFilms(user.uid, session)
-    watched_films = [film.id for film in user_with_films.films if film.status == "watched"]
+    userWithFilms = await userService.getUserWithFilms(user.uid, session)
+    films = userWithFilms.films
     
-    if not watched_films:
+    if not films:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Can't find any recommendations",
         )
-    
-    movie_id = watched_films[-1]
 
-    return await searchService.getRecommendations(movie_id)
+    return await searchService.getRecommendations(films)
