@@ -22,6 +22,8 @@ class Settings(BaseSettings):
 
     DOMAIN: str
     
+    RECOMMENDATIONS_SERVICE_URL: str
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore"
