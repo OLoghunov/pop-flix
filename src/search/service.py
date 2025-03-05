@@ -185,3 +185,18 @@ class SearchService:
         ]
 
         return films
+
+    async def getRecommendations(self, films: List[FilmShortModel]):
+        url = f"{Config.RECOMMENDATIONS_SERVICE_URL}/recommend/films"
+        
+        filmsData = [film.model_dump(by_alias=True) for film in films]
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url=url,
+                json=filmsData,
+        )
+        if response.status_code != 200:
+            raise Exception(f"Ошибка при получении рекомендаций")
+
+        return response.json()
