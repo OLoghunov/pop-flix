@@ -67,9 +67,7 @@ class SearchService:
         film_uid = uuid.uuid5(uuid.NAMESPACE_DNS, str(filmData.id))
         filmStatus = filmData.status
 
-        result = await session.scalars(
-            select(Film).where(Film.uid == film_uid)
-        )
+        result = await session.scalars(select(Film).where(Film.uid == film_uid))
         film = result.first()
 
         if not film:
@@ -98,7 +96,7 @@ class SearchService:
                     await session.commit()
 
                 genres.append(genre)
-                
+
             await session.run_sync(lambda _: film.genres.extend(genres))
             await session.commit()
             await session.refresh(film)
@@ -188,14 +186,25 @@ class SearchService:
 
     async def getRecommendations(self, films: List[FilmShortModel]):
         url = f"{Config.RECOMMENDATIONS_SERVICE_URL}/recommend/films"
-        
-        filmsData = [film.model_dump(by_alias=True) for film in films]
-        
+
+        filmsData = [
+            {
+                "id": film.id,
+                "title": film.title,
+                "year": film.year,
+                "genres": [{"name": genre.name} for genre in film.genres],
+                "poster": film.poster,
+                "tmdbId": film.tmdbId,
+                "status": film.status.value,
+            }
+            for film in films
+        ]
+
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 url=url,
                 json=filmsData,
-        )
+            )
         if response.status_code != 200:
             raise Exception(f"Ошибка при получении рекомендаций")
 
