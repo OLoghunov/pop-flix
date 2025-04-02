@@ -45,7 +45,7 @@ Pop-Flix is a web application, a parody of Kinopoisk, allowing users to search f
    ```
 
 ### Running with Docker
-1. **Copy `.env.example` to `.env` and configure the variables.**
+1. **Copy `.env.docker_example` to `.env.docker` and configure the variables.**
 2. **Start the containers:**
    ```sh
    docker-compose up --build
